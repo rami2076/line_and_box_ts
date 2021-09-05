@@ -34,11 +34,9 @@ export class Box extends React.Component<MyProps, MyState> {
         const newId = prop.id
         const newLabel = ""
         this.state = this.getDefaultState(newId, newLabel)
-        console.log("constructor:" + this.state.readOnly)
     }
 
     render() {
-        console.log("render:" + this.state.readOnly)
         return (<div
                 style={{opacity: this.state.opacity}}
                 onDragStart={e => this.onDragStart(e)}
