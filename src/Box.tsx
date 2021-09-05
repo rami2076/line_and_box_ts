@@ -224,6 +224,8 @@ export class Box extends React.Component<MyProps, MyState> {
         }
 
         if (Box.parentElement === e.currentTarget) {
+            //同じElemetを選んだ場合はもう一度
+            Box.parentElement = null
             return
         }
 
