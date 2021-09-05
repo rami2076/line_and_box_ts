@@ -1,5 +1,6 @@
 import React from 'react';
 import './Box.css'
+import party from 'party-js';
 
 type MyProps = {
     /**
@@ -50,7 +51,7 @@ export class Box extends React.Component<MyProps, MyState> {
                 onDoubleClick={() => this.onDoubleClick()}
             >
                 <input className={["text-in-box", this.state.readOnly ? "read" : "write"].join(" ")}
-                       onBlur={()=>{this.onBlur()}}
+                       onBlur={e=>{this.onBlur(e)}}
                        type={"text"}
                        readOnly={this.state.readOnly}
                        itemID={this.state.id}
@@ -60,9 +61,10 @@ export class Box extends React.Component<MyProps, MyState> {
         )
     }
 
-    private onBlur() {
+    private onBlur(e: React.ChangeEvent<HTMLInputElement>) {
         const newState = this.getReadOrWriteState(true)
         this.setState(newState)
+        party.sparkles(e.target)
     }
 
     private onDoubleClick() {
