@@ -4,6 +4,27 @@
     gap: 10px;
 }
 
+/*TODO::うまくコントロールできていない*/
+.box .text-in-box, .write {
+    background-color: white;
+    border-radius: .5em;
+    padding: 10px;
+    cursor: text;
+}
+
+/*TODO::うまくコントロールできていない*/
+.box .text-in-box, .read {
+    background-color: #ddd;
+    border-radius: .5em;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/*TODO::うまくコントロールできていない*/
+.box :hover {
+    background-color: beige;
+}
+
 .box {
     border: 3px solid #666;
     background-color: #ddd;

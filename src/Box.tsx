@@ -13,6 +13,7 @@ type MyState = {
     label: string
     lazyId: string
     id: string
+    readOnly: boolean
 };
 
 /**
@@ -30,10 +31,13 @@ export class Box extends React.Component<MyProps, MyState> {
     constructor(prop: MyProps) {
         super(prop);
         const newId = prop.id
-        this.state = this.getDefaultState(newId, "DEFAULT_" + prop.id)
+        const newLabel = ""
+        this.state = this.getDefaultState(newId, newLabel)
+        console.log("constructor:" + this.state.readOnly)
     }
 
     render() {
+        console.log("render:" + this.state.readOnly)
         return (<div
                 style={{opacity: this.state.opacity}}
                 onDragStart={e => this.onDragStart(e)}
@@ -41,10 +45,64 @@ export class Box extends React.Component<MyProps, MyState> {
                 onDragLeave={() => this.dragLeave()}
                 onDragOver={e => e.preventDefault()}
                 onDrop={e => this.onDrop(e)}
-                className="box" draggable={true}>
-                <p itemID={this.state.id} id={this.state.id}>{this.state.label}</p>
+                className="box"
+                draggable={true}
+                onDoubleClick={() => this.onDoubleClick()}
+            >
+                <input className={["text-in-box", this.state.readOnly ? "read" : "write"].join(" ")}
+                       onBlur={()=>{this.onBlur()}}
+                       type={"text"}
+                       readOnly={this.state.readOnly}
+                       itemID={this.state.id}
+                       id={this.state.id}
+                       value={this.state.label} onChange={e => this.onChange(e)}/>
             </div>
         )
+    }
+
+    private onBlur() {
+        const newState = this.getReadOrWriteState(true)
+        this.setState(newState)
+    }
+
+    private onDoubleClick() {
+        const newState = this.getReadOrWriteState(false)
+        this.setState(newState)
+    }
+
+    /**
+     * ラベルが変更された場合にイベント発火
+     * @param e React.ChangeEvent<HTMLInputElement>
+     */
+    onChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const newState = this.getChangeLabelState(e.target.value)
+        this.setState(newState)
+    }
+
+    /**
+     * 入力の状態
+     */
+    getReadOrWriteState(readOnly:boolean) {
+        return {
+            opacity: 1,
+            label: this.state.label,
+            lazyId: this.state.lazyId,
+            id: this.state.id,
+            readOnly: readOnly
+        }
+    }
+
+    /**
+     * 入力文字の状態
+     */
+    getChangeLabelState(newLabel: string) {
+        return {
+            opacity: 1,
+            label: newLabel,
+            lazyId: this.state.lazyId,
+            id: this.state.id,
+            readOnly: false
+        }
     }
 
     /**
@@ -58,7 +116,8 @@ export class Box extends React.Component<MyProps, MyState> {
             /**
              * ElementのIDを交換するためにPrefixを付与
              */
-            id: "default_" + newLazyId
+            id: "default_" + newLazyId,
+            readOnly: true
         }
     }
 
@@ -73,7 +132,8 @@ export class Box extends React.Component<MyProps, MyState> {
             /**
              * ElementのIDを交換するためにPrefixを付与
              */
-            id: "move_" + this.state.lazyId
+            id: "move_" + this.state.lazyId,
+            readOnly: true
         }
     }
 
@@ -90,7 +150,6 @@ export class Box extends React.Component<MyProps, MyState> {
         //自分自身にDropせずにDragが終わったとき用
         Box.cacheForNewId = this.state.lazyId
         Box.cacheForNewLabel = this.state.label
-
     }
 
     /**
