@@ -1,6 +1,9 @@
 import React from 'react';
 import './Box.css'
 import party from 'party-js';
+import {AiOutlineSubnode} from "react-icons/ai";
+import LeaderLine from "leader-line-new";
+
 
 type MyProps = {
     /**
@@ -28,7 +31,6 @@ export class Box extends React.Component<MyProps, MyState> {
     private static cacheForNewId: string = "";
     private static cacheForNewLabel: string = "";
 
-
     constructor(prop: MyProps) {
         super(prop);
         const newId = prop.id
@@ -40,6 +42,8 @@ export class Box extends React.Component<MyProps, MyState> {
         return (<div
                 style={{opacity: this.state.opacity}}
                 onDragStart={e => this.onDragStart(e)}
+                onClick={e => this.onClick(e)}
+
                 onDragEnd={e => this.onDragEnd(e)}
                 onDragLeave={() => this.dragLeave()}
                 onDragOver={e => e.preventDefault()}
@@ -48,8 +52,11 @@ export class Box extends React.Component<MyProps, MyState> {
                 draggable={true}
                 onDoubleClick={() => this.onDoubleClick()}
             >
+                <AiOutlineSubnode/>
                 <input className={["text-in-box", this.state.readOnly ? "read" : "write"].join(" ")}
-                       onBlur={e=>{this.onBlur(e)}}
+                       onBlur={e => {
+                           this.onBlur(e)
+                       }}
                        type={"text"}
                        readOnly={this.state.readOnly}
                        itemID={this.state.id}
@@ -82,7 +89,7 @@ export class Box extends React.Component<MyProps, MyState> {
     /**
      * 入力の状態
      */
-    getReadOrWriteState(readOnly:boolean) {
+    getReadOrWriteState(readOnly: boolean) {
         return {
             opacity: 1,
             label: this.state.label,
@@ -188,6 +195,59 @@ export class Box extends React.Component<MyProps, MyState> {
 
     private dragLeave() {
         // 記述しない
+    }
+
+
+    static parentElement: Element | null = null;
+    static parentId: string | null = null;
+
+    private leaderLine: LeaderLine | null = null;
+    //private leaderLine2: LeaderLine | null = null;
+
+
+    private onClick(e: React.MouseEvent<HTMLDivElement>) {
+
+        //子ー＞親と選択する方式にした方が分かりやすいかも。
+        //Map<子ID,{子ID,親ID,LEADERLine}>
+        //static Map<子ID,{子ID,親ID,LEADERLine}> 交換のタイミングでLEADERLINEを更新する。
+
+        //IDとLeaderLineを紐づけるstaticなMapを作って内部で接続先を変更するようにする。
+        //親は一つ。
+        //子は複数。Map<親ID,親ID list<オブジェクト｛ 子ID、LeaderLine｝> >
+        //現状は親を選択して子を選ぶ方式。整理すて上の方式に対応する。
+        //Elementの交換に対応できていない。
+        //IDでかんりできそうなのでIDで管理するようにする。
+        if (Box.parentElement === null || Box.parentId ===null) {
+            Box.parentElement = e.currentTarget
+            Box.parentId = this.state.id
+            return
+        }
+
+        if (Box.parentElement === e.currentTarget) {
+            return
+        }
+
+        //const childElement = e.currentTarget
+        const childId = this.state.id
+
+        let childHTMLElement:HTMLElement | null = document.getElementById(childId)
+        let parentHTMLElement :HTMLElement | null = document.getElementById(Box.parentId)
+
+        if(childHTMLElement === null || parentHTMLElement === null ){
+            return
+        }
+
+        if (this.leaderLine === null) {
+          // this.leaderLine = new LeaderLine(childElement, Box.parentElement)
+            this.leaderLine =   new LeaderLine(childHTMLElement, parentHTMLElement)
+        }
+
+        this.leaderLine.remove()
+        //this.leaderLine = new LeaderLine(childElement, Box.parentElement)
+        // @ts-ignore
+        this.leaderLine =   new LeaderLine(childHTMLElement, parentHTMLElement)
+        Box.parentElement = null
+
     }
 }
 

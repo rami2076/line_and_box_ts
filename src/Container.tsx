@@ -30,7 +30,7 @@ export class Container extends React.Component<Prop, State> {
                 <div id="container"
                      className={"container"}>
                     {this.state.children.map(item => {
-                        return (<Box key={item} id={item.toString()}/>)
+                        return (<Box key={item} id={item.toString()}/>)//TODO::Box内のボタンをクリックされた場合新しいBoxを作成したいけどどうしたらいいかよくわからない。
                     })}
                 </div>
             </div>
